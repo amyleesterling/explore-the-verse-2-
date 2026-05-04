@@ -47,7 +47,16 @@ Copy lives in `src/lib/copy.ts` (site chrome) and `src/lib/scale-data.ts` (per-s
 
 `.github/workflows/deploy.yml` builds with `GITHUB_PAGES=true`, drops a `.nojekyll`, and deploys `out/` via `actions/deploy-pages` on every push to `main`. Site URL: `https://amyleesterling.github.io/explore-the-verse-2-/`.
 
-Pages must be enabled once in repo Settings → Pages → Source: GitHub Actions.
+### One-time GitHub setup (in this exact order)
+
+1. **Repo must be public** — GitHub Pages on free plans requires it (private-repo Pages is Pro/Team/Enterprise only).
+2. **Settings → Pages → Source = GitHub Actions** — *not* "Deploy from a branch". This is the most common deploy footgun: with "Deploy from a branch" Pages will try to serve the raw repo root (the README), and the workflow's `actions/deploy-pages` step will fail because no Pages deployment environment is configured. Must be **GitHub Actions**.
+
+### Diagnosing a non-serving site
+
+- **403 on `https://<user>.github.io/` AND on the project URL** → Pages has never been enabled for this account / repo. Fix: enable Pages with Source: GitHub Actions.
+- **404 on the project URL only** → Pages is enabled but no successful deploy has landed yet. Fix: re-run the *Deploy to GitHub Pages* workflow from the Actions tab, or push a new commit to `main`.
+- **Page loads but assets 404 / styling missing** → `basePath` mismatch. Confirm the workflow ran with `GITHUB_PAGES=true` so `next.config.mjs` emitted assets under `/explore-the-verse-2-/`.
 
 ## Constraints
 
