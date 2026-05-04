@@ -1,0 +1,122 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-deep: #04060d;
+  --bg: #070a16;
+  --ink: #e8eaf6;
+  --ink-dim: #9aa3c4;
+  --line: rgba(255, 255, 255, 0.08);
+  color-scheme: dark;
+}
+
+html, body {
+  background: var(--bg-deep);
+  color: var(--ink);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  min-height: 100vh;
+  overflow-x: hidden;
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 30%, rgba(60, 80, 160, 0.18), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(180, 100, 200, 0.10), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 10% 80%, rgba(100, 200, 220, 0.08), transparent 70%),
+    var(--bg-deep);
+}
+
+::selection {
+  background: rgba(124, 224, 255, 0.25);
+  color: white;
+}
+
+.font-display {
+  font-family: var(--font-display), "Iowan Old Style", Georgia, "Times New Roman", serif;
+  font-feature-settings: "ss01", "ss02";
+}
+
+.font-mono {
+  font-family: var(--font-mono), ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+.glass {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.03),
+    rgba(255, 255, 255, 0.01)
+  );
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid var(--line);
+}
+
+.hairline {
+  border: 1px solid var(--line);
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+.text-pretty {
+  text-wrap: pretty;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.16); }
+
+/* Input range custom */
+input[type="range"].scale-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.15);
+  outline: none;
+  cursor: pointer;
+}
+input[type="range"].scale-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: white;
+  box-shadow: 0 0 16px rgba(255, 255, 255, 0.6), 0 0 32px rgba(124, 224, 255, 0.4);
+  border: none;
+  cursor: pointer;
+}
+input[type="range"].scale-range::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: white;
+  box-shadow: 0 0 16px rgba(255, 255, 255, 0.6), 0 0 32px rgba(124, 224, 255, 0.4);
+  border: none;
+  cursor: pointer;
+}
+
+@keyframes orbit {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.no-touch-action {
+  touch-action: none;
+}
+
+/* Utility for smoothly clipped panels */
+.fade-mask-y {
+  -webkit-mask-image: linear-gradient(180deg, transparent, black 8%, black 92%, transparent);
+  mask-image: linear-gradient(180deg, transparent, black 8%, black 92%, transparent);
+}
