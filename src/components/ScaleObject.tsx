@@ -4,18 +4,19 @@ import { motion, type MotionValue, useTransform } from "framer-motion";
 import { categoryStyles, type ScaleObject as TScaleObject } from "@/lib/scale-data";
 import { log10 } from "@/lib/scale-helpers";
 
-const REFERENCE_FRACTION = 0.46; // when zoom matches obj.size, the object renders as this fraction of the smaller viewport dim
-const FADE_SPREAD = 1.4; // log units of full-fade radius
+const REFERENCE_FRACTION = 0.46;
+const FADE_SPREAD = 1.4;
 
 type Props = {
   obj: TScaleObject;
   zoom: MotionValue<number>;
   stageMin: number;
   isSelected: boolean;
+  reducedMotion?: boolean;
   onSelect: () => void;
 };
 
-export function ScaleObject({ obj, zoom, stageMin, isSelected, onSelect }: Props) {
+export function ScaleObject({ obj, zoom, stageMin, isSelected, reducedMotion, onSelect }: Props) {
   const objLog = log10(obj.size);
   const style = categoryStyles[obj.category];
 
@@ -30,32 +31,31 @@ export function ScaleObject({ obj, zoom, stageMin, isSelected, onSelect }: Props
     return Math.pow(1 - dist / FADE_SPREAD, 2);
   });
 
-  // Title fades in only when very close to the focal scale.
   const labelOpacity = useTransform(zoom, (z) => {
     const dist = Math.abs(objLog - z);
-    if (dist > 0.6) return 0;
-    return Math.pow(1 - dist / 0.6, 1.6);
+    if (dist > 0.55) return 0;
+    return Math.pow(1 - dist / 0.55, 1.6);
   });
 
-  // Slight z-bias so the focal object renders on top
   const zIndex = useTransform(zoom, (z) => {
     const dist = Math.abs(objLog - z);
     return Math.round(1000 - dist * 100);
   });
 
+  const ariaLabel = `Focus on ${obj.name} — ${style.label.toLowerCase()}, ${obj.sizeLabel.replace(/^≈\s*/, "approximately ")}`;
+
   return (
     <motion.button
       type="button"
       onClick={onSelect}
-      aria-label={`Focus on ${obj.name}`}
-      className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer outline-none"
+      aria-label={ariaLabel}
+      className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-white/60 rounded-full"
       style={{
         width: sizePx,
         height: sizePx,
         opacity,
         zIndex,
       }}
-      transition={{ type: "spring", damping: 25, stiffness: 80 }}
     >
       <div
         className="relative h-full w-full rounded-full"
@@ -63,9 +63,15 @@ export function ScaleObject({ obj, zoom, stageMin, isSelected, onSelect }: Props
           background: makeBodyGradient(obj.category, style.tint),
           boxShadow: makeGlow(style.glow, isSelected),
           border: `1px solid ${style.ring}`,
+          // Life category: subtly uneven edge — biology never draws perfect circles
+          ...(obj.category === "life"
+            ? {
+                borderRadius: "48% 52% 51% 49% / 52% 48% 51% 49%",
+              }
+            : {}),
         }}
       >
-        {/* Subtle inner highlight */}
+        {/* Soft inner highlight */}
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 rounded-full"
@@ -75,7 +81,8 @@ export function ScaleObject({ obj, zoom, stageMin, isSelected, onSelect }: Props
             mixBlendMode: "screen",
           }}
         />
-        {/* Category-specific overlay flourishes */}
+
+        {/* Per-category diagnostic flourishes */}
         {obj.category === "stellar" && (
           <div
             aria-hidden
@@ -97,24 +104,32 @@ export function ScaleObject({ obj, zoom, stageMin, isSelected, onSelect }: Props
               mixBlendMode: "screen",
               maskImage: "radial-gradient(circle, black 30%, transparent 75%)",
               WebkitMaskImage: "radial-gradient(circle, black 30%, transparent 75%)",
-              animation: "orbit 90s linear infinite",
+              animation: reducedMotion ? "none" : "orbit 90s linear infinite",
             }}
           />
         )}
         {obj.category === "cosmic" && (
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-0 rounded-full"
-            style={{
-              backgroundImage:
-                "radial-gradient(circle at 30% 40%, rgba(255,255,255,0.2) 0 1px, transparent 1px)," +
-                "radial-gradient(circle at 70% 60%, rgba(255,255,255,0.15) 0 1px, transparent 1px)," +
-                "radial-gradient(circle at 50% 80%, rgba(255,255,255,0.18) 0 1.5px, transparent 1px)," +
-                "radial-gradient(circle at 80% 20%, rgba(255,255,255,0.12) 0 1px, transparent 1px)",
-              backgroundSize: "100% 100%",
-              mixBlendMode: "screen",
-            }}
-          />
+            className="pointer-events-none absolute inset-0 rounded-full overflow-hidden"
+            style={{ mixBlendMode: "screen" }}
+          >
+            <svg viewBox="0 0 100 100" className="h-full w-full">
+              {/* faint filaments suggesting the cosmic web */}
+              <g stroke="rgba(255,255,255,0.18)" strokeWidth="0.18" fill="none">
+                <path d="M10,30 Q40,20 60,40 T90,55" />
+                <path d="M15,70 Q35,55 55,72 T85,68" />
+                <path d="M50,15 Q55,40 40,55 T55,90" />
+              </g>
+              <g fill="rgba(255,255,255,0.65)">
+                <circle cx="30" cy="35" r="0.6" />
+                <circle cx="60" cy="42" r="0.5" />
+                <circle cx="70" cy="60" r="0.7" />
+                <circle cx="42" cy="55" r="0.4" />
+                <circle cx="55" cy="80" r="0.5" />
+              </g>
+            </svg>
+          </div>
         )}
         {obj.category === "quantum" && (
           <div
@@ -123,9 +138,64 @@ export function ScaleObject({ obj, zoom, stageMin, isSelected, onSelect }: Props
             style={{
               border: `1px solid ${style.ring}`,
               opacity: 0.3,
-              animation: "orbit 16s linear infinite",
+              animation: reducedMotion ? "none" : "orbit 16s linear infinite",
             }}
           />
+        )}
+        {obj.category === "molecular" && (
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 rounded-full overflow-hidden"
+            style={{ mixBlendMode: "screen" }}
+          >
+            {/* Three faint bonded dots — geometry of a molecule, drawn in light */}
+            <svg viewBox="0 0 100 100" className="h-full w-full">
+              <g stroke={style.tint} strokeWidth="0.4" opacity="0.45">
+                <line x1="38" y1="55" x2="50" y2="42" />
+                <line x1="50" y1="42" x2="62" y2="55" />
+              </g>
+              <g fill={style.tint} opacity="0.7">
+                <circle cx="38" cy="55" r="2.2" />
+                <circle cx="50" cy="42" r="3.0" />
+                <circle cx="62" cy="55" r="2.2" />
+              </g>
+            </svg>
+          </div>
+        )}
+        {obj.category === "planetary" && (
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 rounded-full overflow-hidden"
+          >
+            {/* terminator: the line where day meets night */}
+            <div
+              className="absolute inset-0 rounded-full"
+              style={{
+                background:
+                  "linear-gradient(115deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 48%, rgba(0,0,0,0.45) 56%, rgba(0,0,0,0.65) 100%)",
+              }}
+            />
+          </div>
+        )}
+        {obj.category === "human" && (
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 rounded-full overflow-hidden"
+            style={{ mixBlendMode: "screen", opacity: 0.35 }}
+          >
+            {/* a faint engineered grid */}
+            <div
+              className="absolute inset-0 rounded-full"
+              style={{
+                backgroundImage:
+                  "linear-gradient(rgba(255,255,255,0.18) 1px, transparent 1px)," +
+                  "linear-gradient(90deg, rgba(255,255,255,0.18) 1px, transparent 1px)",
+                backgroundSize: "16% 16%",
+                maskImage: "radial-gradient(circle, black 60%, transparent 90%)",
+                WebkitMaskImage: "radial-gradient(circle, black 60%, transparent 90%)",
+              }}
+            />
+          </div>
         )}
       </div>
 

@@ -5,15 +5,27 @@ export const clamp = (v: number, min: number, max: number): number =>
 
 export const log10 = (v: number): number => Math.log(v) / Math.LN10;
 
+const SUPERS: Record<string, string> = {
+  "0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴",
+  "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹",
+};
+
+const supScript = (n: number): string => {
+  const sign = n < 0 ? "⁻" : "";
+  return sign + Math.abs(n).toString().split("").map((d) => SUPERS[d] ?? d).join("");
+};
+
 export const formatPowerOfTen = (logValue: number): string => {
-  const rounded = Math.round(logValue);
-  const sign = rounded < 0 ? "⁻" : "";
-  const digits = Math.abs(rounded).toString();
-  const supers: Record<string, string> = {
-    "0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴",
-    "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹",
-  };
-  return `10${sign}${digits.split("").map((d) => supers[d] ?? d).join("")} m`;
+  return `10${supScript(Math.round(logValue))} m`;
+};
+
+// "4.2 × 10² m" — continuous, doesn't quantize on round numbers
+export const formatScientific = (logValue: number): string => {
+  const exp = Math.floor(logValue);
+  const mantissa = Math.pow(10, logValue - exp);
+  const m = mantissa < 9.95 ? mantissa.toFixed(1) : "1.0";
+  const adjExp = mantissa < 9.95 ? exp : exp + 1;
+  return `${m} × 10${supScript(adjExp)} m`;
 };
 
 export const formatMeters = (m: number): string => {
@@ -37,6 +49,16 @@ export const findClosestObject = (zoomLog: number): ScaleObject => {
       bestDist = d;
       best = obj;
     }
+  }
+  return best;
+};
+
+// Distance to the nearest focal scale, in log units. Used for attractor strength.
+export const distanceToNearestFocal = (zoomLog: number): number => {
+  let best = Infinity;
+  for (const obj of scaleObjects) {
+    const d = Math.abs(log10(obj.size) - zoomLog);
+    if (d < best) best = d;
   }
   return best;
 };
