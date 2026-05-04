@@ -9,6 +9,7 @@ type Props = {
 
 const PROXIMITY = 0.45;
 
+// Rises from below like a sign you're passing on a long road, then drifts away.
 export function ThresholdTag({ zoom }: Props) {
   const active = thresholdLabels.find((t) => Math.abs(t.atLog - zoom) < PROXIMITY);
 
@@ -18,14 +19,16 @@ export function ThresholdTag({ zoom }: Props) {
         {active && (
           <motion.div
             key={active.atLog}
-            initial={{ opacity: 0, y: -4, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 4, scale: 0.98 }}
-            transition={{ duration: 0.45, ease: "easeOut" }}
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.55, ease: [0.2, 0.65, 0.3, 1] }}
             className="text-center"
           >
-            <div className="font-display text-base text-white/70">{active.label}</div>
-            <div className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.24em] text-white/35">
+            <div className="font-display text-base italic text-white/80">
+              {active.label}
+            </div>
+            <div className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.24em] text-white/40">
               {active.sub}
             </div>
           </motion.div>

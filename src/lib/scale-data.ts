@@ -240,6 +240,17 @@ export const scaleObjects: ScaleObject[] = [
     category: "stellar",
   },
   {
+    id: "earth-orbit",
+    name: "Earth's orbit",
+    size: 1.496e11,
+    sizeLabel: "≈ 1.5 × 10¹¹ m  ·  1 AU",
+    description:
+      "The distance from Earth to the Sun. Light, tireless, makes the trip in just over eight minutes.",
+    whyItMatters:
+      "From here on, every distance in the solar system is measured in copies of this one leap.",
+    category: "stellar",
+  },
+  {
     id: "solar-system",
     name: "Solar System",
     size: 9e12,
@@ -260,6 +271,17 @@ export const scaleObjects: ScaleObject[] = [
     whyItMatters:
       "Even our local cosmic neighborhood is much larger and stranger than the tidy textbook diagram suggests.",
     category: "stellar",
+  },
+  {
+    id: "proxima",
+    name: "Proxima Centauri",
+    size: 4.01e16,
+    sizeLabel: "≈ 4 × 10¹⁶ m  ·  4.2 ly",
+    description:
+      "The closest known star to the Sun — a small red dwarf about four light-years away, with at least one rocky planet in tow.",
+    whyItMatters:
+      "Our nearest stellar neighbor sits at a distance light takes years to cross. Space is genuinely, almost rudely, big.",
+    category: "galactic",
   },
   {
     id: "milky-way",
@@ -408,6 +430,7 @@ export const jumpStops: { id: string; label: string }[] = [
   { id: "human", label: "Human" },
   { id: "earth", label: "Planetary" },
   { id: "sun", label: "Stellar" },
+  { id: "earth-orbit", label: "Orbital" },
   { id: "milky-way", label: "Galactic" },
   { id: "observable-universe", label: "Cosmic" },
 ];
